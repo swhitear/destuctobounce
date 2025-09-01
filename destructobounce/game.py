@@ -1,7 +1,7 @@
 import pygame
 import sys
 from destructobounce.turret import Turret
-from destructobounce.projectile import Projectile
+from destructobounce.destructorb import Destructorb 
 
 class Game:
     def __init__(self, surface: pygame.Surface):
@@ -13,8 +13,8 @@ class Game:
 
         # player turret
         self.turret = Turret(self.screen.get_width(), self.screen.get_height())
-        # Keep track of projectiles
-        self.projectiles = []
+        # Keep track of destructorbs
+        self.destructorbs = []
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -22,27 +22,41 @@ class Game:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    # Fire from the center top of the turret
+                    # Fire from the turret barrel in the aimed direction
                     x, y = self.turret.fire_location()
-                    proj = Projectile((x, y), self.screen.get_width(), self.screen.get_height())
-                    self.projectiles.append(proj)
+                    dx, dy = self.turret.fire_direction()
+                    orb = Destructorb(
+                        (x, y),
+                        self.screen.get_width(),
+                        self.screen.get_height(),
+                        speed=7,
+                        radius=5,
+                        color=(255, 255, 255)
+                    )
+                    orb.speed_x = dx * abs(orb.speed_y)
+                    orb.speed_y = dy * abs(orb.speed_y)
+                    self.destructorbs.append(orb)
                     
                     # bail out
                     # self.running = False
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if keys[pygame.K_LEFT] or keys[pygame.K_z]:
             self.turret.move(Turret.LEFT, dt)
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_c]:
             self.turret.move(Turret.RIGHT, dt)
+        if keys[pygame.K_a]:
+            self.turret.pivot(Turret.PIVOT_LEFT)
+        if keys[pygame.K_d]:
+            self.turret.pivot(Turret.PIVOT_RIGHT)
 
-        # Update projectiles
-        for projectile in self.projectiles:
-            projectile.update()
+        # Update destructorbs
+        for destructorb in self.destructorbs:
+            destructorb.update()
 
         # Remove inactive ones
-        self.projectiles = [p for p in self.projectiles if p.active]
+        self.destructorbs = [d for d in self.destructorbs if d.active]
 
         self.turret.clamp_to_screen(self.screen.get_width())
 
@@ -52,8 +66,8 @@ class Game:
         
         # sprites and things
         self.turret.draw(self.screen)
-        for projectile in self.projectiles:
-            projectile.draw(self.screen)
+        for destructorb in self.destructorbs:
+            destructorb.draw(self.screen)
 
         # render
         pygame.display.flip()

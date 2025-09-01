@@ -1,7 +1,7 @@
 import pygame
 
 # --- Projectile class ---
-class Projectile:
+class Destructorb:
     COLOR = (255, 255, 255)  # white
 
     def __init__(self, pos, screen_width, screen_height, speed=7, radius=5, color=COLOR):
