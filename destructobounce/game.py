@@ -23,8 +23,12 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     # Fire from the center top of the turret
-                    self.projectiles.append(Projectile(self.turret.fire_location))
-                    self.running = False
+                    x, y = self.turret.fire_location()
+                    proj = Projectile((x, y), self.screen.get_width(), self.screen.get_height())
+                    self.projectiles.append(proj)
+                    
+                    # bail out
+                    # self.running = False
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
