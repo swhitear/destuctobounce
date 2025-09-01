@@ -1,7 +1,7 @@
-# game.py
-
 import pygame
 import sys
+from destructobounce.turret import Turret
+from destructobounce.projectile import Projectile
 
 class Game:
     def __init__(self, surface: pygame.Surface):
@@ -10,19 +10,48 @@ class Game:
         self.running = True
         self.screen = surface
         self.clock = pygame.time.Clock()
-        
+
+        # player turret
+        self.turret = Turret(self.screen.get_width(), self.screen.get_height())
+        # Keep track of projectiles
+        self.projectiles = []
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    # Fire from the center top of the turret
+                    self.projectiles.append(Projectile(self.turret.fire_location))
+                    self.running = False
 
-    def update(self, dt = None):
-        # Update game state here
-        pass
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.turret.move(Turret.LEFT, dt)
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.turret.move(Turret.RIGHT, dt)
+
+        # Update projectiles
+        for projectile in self.projectiles:
+            projectile.update()
+
+        # Remove inactive ones
+        self.projectiles = [p for p in self.projectiles if p.active]
+
+        self.turret.clamp_to_screen(self.screen.get_width())
 
     def draw(self):
+        #window
         self.screen.fill(self.background_color)
-        # Draw game elements here
+        
+        # sprites and things
+        self.turret.draw(self.screen)
+        for projectile in self.projectiles:
+            projectile.draw(self.screen)
+
+        # render
         pygame.display.flip()
 
     def run(self):
