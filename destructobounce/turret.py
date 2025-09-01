@@ -1,10 +1,13 @@
 # destructobounce/paddle.py
 
+import math
 import pygame
 
 class Turret:
     LEFT = "left"
     RIGHT = "right"
+    PIVOT_LEFT = "pivot_left"
+    PIVOT_RIGHT = "pivot_right"
 
     def __init__(self, screen_width, screen_height):
         self.width = 40
@@ -19,6 +22,7 @@ class Turret:
             self.width,
             self.height
         )
+        self.pivot_angle = 90  # 90 degrees = straight up
 
     @property
     def x(self):
@@ -32,11 +36,24 @@ class Turret:
         # Return (x, y) coordinates for the projectile spawn point (center top of turret)
         return (self.x + self.width // 2, self.y)
 
+    def fire_direction(self):
+        # Returns a unit vector (dx, dy) in the direction of the current pivot_angle
+        radians = math.radians(self.pivot_angle)
+        dx = math.cos(radians)
+        dy = -math.sin(radians)
+        return (dx, dy)
+
     def move(self, direction, dt):
         if direction == Turret.LEFT:
             self.rect.x -= self.speed * dt
         elif direction == Turret.RIGHT:
             self.rect.x += self.speed * dt
+
+    def pivot(self, direction):
+        if direction == Turret.PIVOT_LEFT:
+            self.pivot_angle = (self.pivot_angle + 1) % 360
+        elif direction == Turret.PIVOT_RIGHT:
+            self.pivot_angle = (self.pivot_angle - 1) % 360
 
     def clamp_to_screen(self, screen_width):
         if self.rect.left < 0:
@@ -45,4 +62,13 @@ class Turret:
             self.rect.right = screen_width
 
     def draw(self, surface):
+        # Draw the turret base
         pygame.draw.rect(surface, self.color, self.rect)
+        # Draw the turret barrel as a line
+        barrel_length = 30
+        center_x = self.x + self.width // 2
+        center_y = self.y
+        dx, dy = self.fire_direction()
+        end_x = int(center_x + barrel_length * dx)
+        end_y = int(center_y + barrel_length * dy)
+        pygame.draw.line(surface, (255, 255, 0), (center_x, center_y), (end_x, end_y), 4)
