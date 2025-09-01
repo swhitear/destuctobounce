@@ -20,8 +20,17 @@ class Turret:
             self.height
         )
 
+    @property
+    def x(self):
+        return self.rect.x
+
+    @property
+    def y(self):
+        return self.rect.y
+
     def fire_location(self):
-        return self.rect.centerx, self.rect.top
+        # Return (x, y) coordinates for the projectile spawn point (center top of turret)
+        return (self.x + self.width // 2, self.y)
 
     def move(self, direction, dt):
         if direction == Turret.LEFT:
