@@ -12,6 +12,7 @@ class Turret:
     def __init__(self, screen_width, screen_height):
         self.width = 40
         self.height = 20
+        self.barrel_length = 15
         self.color = (200, 200, 255)
         self.speed = 400  # pixels per second
 
@@ -23,6 +24,8 @@ class Turret:
             self.height
         )
         self.pivot_angle = 90  # 90 degrees = straight up
+        self.min_angle = 15    # 90 - 75 = 15 degrees (left limit)
+        self.max_angle = 165   # 90 + 75 = 165 degrees (right limit)
 
     @property
     def x(self):
@@ -51,9 +54,9 @@ class Turret:
 
     def pivot(self, direction):
         if direction == Turret.PIVOT_LEFT:
-            self.pivot_angle = (self.pivot_angle + 1) % 360
+            self.pivot_angle = min(self.pivot_angle + 1, self.max_angle)
         elif direction == Turret.PIVOT_RIGHT:
-            self.pivot_angle = (self.pivot_angle - 1) % 360
+            self.pivot_angle = max(self.pivot_angle - 1, self.min_angle)
 
     def clamp_to_screen(self, screen_width):
         if self.rect.left < 0:
@@ -65,10 +68,9 @@ class Turret:
         # Draw the turret base
         pygame.draw.rect(surface, self.color, self.rect)
         # Draw the turret barrel as a line
-        barrel_length = 30
         center_x = self.x + self.width // 2
         center_y = self.y
         dx, dy = self.fire_direction()
-        end_x = int(center_x + barrel_length * dx)
-        end_y = int(center_y + barrel_length * dy)
+        end_x = int(center_x + self.barrel_length * dx)
+        end_y = int(center_y + self.barrel_length * dy)
         pygame.draw.line(surface, (255, 255, 0), (center_x, center_y), (end_x, end_y), 4)
