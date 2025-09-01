@@ -3,8 +3,11 @@
 import pygame
 
 class Turret:
+    LEFT = "left"
+    RIGHT = "right"
+
     def __init__(self, screen_width, screen_height):
-        self.width = 100
+        self.width = 40
         self.height = 20
         self.color = (200, 200, 255)
         self.speed = 400  # pixels per second
@@ -17,10 +20,13 @@ class Turret:
             self.height
         )
 
+    def fire_location(self):
+        return self.rect.centerx, self.rect.top
+
     def move(self, direction, dt):
-        if direction == "left":
+        if direction == Turret.LEFT:
             self.rect.x -= self.speed * dt
-        elif direction == "right":
+        elif direction == Turret.RIGHT:
             self.rect.x += self.speed * dt
 
     def clamp_to_screen(self, screen_width):
