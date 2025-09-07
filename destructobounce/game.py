@@ -21,11 +21,11 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    x, y = self.turret.fire_location()
-                    dx, dy = self.turret.fire_direction()
-                    self.destructorbs.new_orb(x, y, dx, dy)
+            # elif event.type == pygame.KEYDOWN:
+            #     if event.key == pygame.K_SPACE:
+            #         x, y = self.turret.fire_location()
+            #         dx, dy = self.turret.fire_direction()
+            #         self.destructorbs.new_orb(x, y, dx, dy)
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
@@ -37,6 +37,10 @@ class Game:
             self.turret.pivot(Turret.PIVOT_LEFT)
         if keys[pygame.K_d]:
             self.turret.pivot(Turret.PIVOT_RIGHT)
+        if keys[pygame.K_SPACE]:
+            x, y = self.turret.fire_location()
+            dx, dy = self.turret.fire_direction()
+            self.destructorbs.new_orb(x, y, dx, dy)
 
         # Update main collections
         self.block_pile.update()
