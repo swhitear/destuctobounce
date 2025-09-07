@@ -4,7 +4,8 @@ from destructobounce.turret import Turret
 from destructobounce.destructorb_group import DestructorbGroup
 from destructobounce.config import Config
 from destructobounce.block_pile import BlockPile
-print("Loading Game")
+from destructobounce.wall_block_gen import WallBlockGen
+
 class Game:
     def __init__(self, surface: pygame.Surface, config: Config):
         self.config = config
@@ -15,17 +16,19 @@ class Game:
 
         self.turret = Turret(self.config)
         self.destructorbs = DestructorbGroup(self.config)
-        self.block_pile = BlockPile(self.config)
+        self.wall_gen = WallBlockGen(self.config, row_count=3)
+        self.block_pile = BlockPile(self.config, self.wall_gen)
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            # elif event.type == pygame.KEYDOWN:
-            #     if event.key == pygame.K_SPACE:
-            #         x, y = self.turret.fire_location()
-            #         dx, dy = self.turret.fire_direction()
-            #         self.destructorbs.new_orb(x, y, dx, dy)
+            elif event.type == pygame.KEYDOWN:
+                # handle firing once per loop
+                if event.key == pygame.K_SPACE:
+                    x, y = self.turret.fire_location()
+                    dx, dy = self.turret.fire_direction()
+                    self.destructorbs.new_orb(x, y, dx, dy)
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
@@ -37,10 +40,6 @@ class Game:
             self.turret.pivot(Turret.PIVOT_LEFT)
         if keys[pygame.K_d]:
             self.turret.pivot(Turret.PIVOT_RIGHT)
-        if keys[pygame.K_SPACE]:
-            x, y = self.turret.fire_location()
-            dx, dy = self.turret.fire_direction()
-            self.destructorbs.new_orb(x, y, dx, dy)
 
         # Update main collections
         self.block_pile.update()
