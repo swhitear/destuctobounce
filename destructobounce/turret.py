@@ -9,17 +9,18 @@ class Turret:
     PIVOT_LEFT = "pivot_left"
     PIVOT_RIGHT = "pivot_right"
 
-    def __init__(self, screen_width, screen_height):
+    def __init__(self, config):
         self.width = 40
         self.height = 20
         self.barrel_length = 15
-        self.color = (200, 200, 255)
+        self.color = config.COLOR_WHITE
+        self.barrel_color = config.COLOR_YELLOW
         self.speed = 400  # pixels per second
 
         # Start centered near bottom of the screen
         self.rect = pygame.Rect(
-            (screen_width - self.width) // 2,
-            screen_height - self.height - 30,
+            (config.SCREEN_WIDTH - self.width) // 2,
+            config.SCREEN_HEIGHT - self.height - 30,
             self.width,
             self.height
         )
@@ -73,4 +74,4 @@ class Turret:
         dx, dy = self.fire_direction()
         end_x = int(center_x + self.barrel_length * dx)
         end_y = int(center_y + self.barrel_length * dy)
-        pygame.draw.line(surface, (255, 255, 0), (center_x, center_y), (end_x, end_y), 4)
+        pygame.draw.line(surface, self.barrel_color, (center_x, center_y), (end_x, end_y), 4)

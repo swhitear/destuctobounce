@@ -1,1 +1,4 @@
 pygame==2.6.1
+PyYAML==6.0.3
+pytest==8.0.0
+pytest-pretty==1.2.0

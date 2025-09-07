@@ -1,18 +1,15 @@
 import pygame
-from .config import SCREEN_WIDTH, SCREEN_HEIGHT
+from .config import Config
 from .game import Game
-
+print("Loading Main")
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    config = Config()  # Create Config instance here (no file yet)
+    screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
     pygame.display.set_caption("Destructobounce")
-    game = Game(screen)
+
+    game = Game(screen, config)  # Pass it to the Game constructor
     game.run()
 
-    running = True
-    while running:
-        game.handle_events()
-        game.update()
-        game.draw()
-    
     pygame.quit()

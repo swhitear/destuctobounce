@@ -1,20 +1,21 @@
 import pygame
 import sys
 from destructobounce.turret import Turret
-from destructobounce.destructorb import Destructorb 
-
+from destructobounce.destructorb_group import DestructorbGroup
+from destructobounce.config import Config
+from destructobounce.block_pile import BlockPile
+print("Loading Game")
 class Game:
-    def __init__(self, surface: pygame.Surface):
-        # Load any assets, initialize game state here
-        self.background_color = (0, 0, 0)  # black background
+    def __init__(self, surface: pygame.Surface, config: Config):
+        self.config = config
+        self.background_color = self.config.COLOR_BLACK
         self.running = True
         self.screen = surface
         self.clock = pygame.time.Clock()
 
-        # player turret
-        self.turret = Turret(self.screen.get_width(), self.screen.get_height())
-        # Keep track of destructorbs
-        self.destructorbs = []
+        self.turret = Turret(self.config)
+        self.destructorbs = DestructorbGroup(self.config)
+        self.block_pile = BlockPile(self.config)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -22,23 +23,9 @@ class Game:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    # Fire from the turret barrel in the aimed direction
                     x, y = self.turret.fire_location()
                     dx, dy = self.turret.fire_direction()
-                    orb = Destructorb(
-                        (x, y),
-                        self.screen.get_width(),
-                        self.screen.get_height(),
-                        speed=7,
-                        radius=5,
-                        color=(255, 255, 255)
-                    )
-                    orb.speed_x = dx * abs(orb.speed_y)
-                    orb.speed_y = dy * abs(orb.speed_y)
-                    self.destructorbs.append(orb)
-                    
-                    # bail out
-                    # self.running = False
+                    self.destructorbs.new_orb(x, y, dx, dy)
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
@@ -51,31 +38,35 @@ class Game:
         if keys[pygame.K_d]:
             self.turret.pivot(Turret.PIVOT_RIGHT)
 
-        # Update destructorbs
-        for destructorb in self.destructorbs:
-            destructorb.update()
+        # Update main collections
+        self.block_pile.update()
+        self.destructorbs.update()
 
-        # Remove inactive ones
-        self.destructorbs = [d for d in self.destructorbs if d.active]
+        # Collision detection
+        for orb in self.destructorbs:
+            for block in self.block_pile:
+                if orb.rect.colliderect(block.rect):
+                    # Bounce the orb and increment collisions
+                    if orb.rect.x < block.rect.x or orb.rect.x > block.rect.x + block.rect.width:
+                        orb.speed_x *= -1   
+                    else:
+                        orb.speed_y *= -1
+                    orb.collide(block.collision_cost)
+                    block.collide(orb.collision_cost)
 
         self.turret.clamp_to_screen(self.screen.get_width())
 
     def draw(self):
-        #window
         self.screen.fill(self.background_color)
-        
-        # sprites and things
         self.turret.draw(self.screen)
-        for destructorb in self.destructorbs:
-            destructorb.draw(self.screen)
-
-        # render
+        self.block_pile.draw(self.screen)
+        self.destructorbs.draw(self.screen)
         pygame.display.flip()
 
     def run(self):
         self.running = True
         while self.running:
-            dt = self.clock.tick(60) / 1000.0  # Limit to 60 FPS, get delta time in seconds
+            dt = self.clock.tick(60) / 1000.0
             self.handle_events()
             self.update(dt)
             self.draw()

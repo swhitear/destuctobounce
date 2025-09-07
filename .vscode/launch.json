@@ -5,11 +5,49 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Run File",
+            "name": "Run Game (debug)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/run.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run Current File (debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Run Tests (debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",        // verbose output
+                "--color=yes", // colorized output
+                "-s",        // show print statements
+                "tests/"     // directory containing tests
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Test Current File (debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",        // verbose output
+                "--color=yes", // colorized output
+                "-s",        // show print statements
+                "${file}"     // specific test
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
