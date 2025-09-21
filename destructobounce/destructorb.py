@@ -1,5 +1,4 @@
 import pygame
-from destructobounce.config import Config
 
 # --- Projectile class ---
 class Destructorb:

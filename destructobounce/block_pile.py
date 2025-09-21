@@ -1,15 +1,8 @@
-from .block import Block
-
+from destructobounce.block_gen import BlockGen
 class BlockPile:
-    def __init__(self, config):
-        self.blocks = []
-        self.row_count = 2
-        cols = config.SCREEN_WIDTH // (config.BLOCK_WIDTH + config.BLOCK_PADDING)
-        for row in range(self.row_count):
-            y = 20 + row * (config.BLOCK_HEIGHT + config.BLOCK_PADDING)
-            for col in range(cols):
-                x = col * (config.BLOCK_WIDTH + config.BLOCK_PADDING)
-                self.blocks.append(Block(x, y, config=config, color=None, max_collisions=abs(self.row_count-row), collision_cost=1))
+    def __init__(self, config, block_gen:BlockGen=None):
+        self.block_gen = block_gen
+        self.blocks = self.block_gen.generate()
 
     def update(self):
         """Update all blocks and remove defunct ones"""
